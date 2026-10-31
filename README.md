@@ -28,6 +28,16 @@ After one visit over https, Chrome or Edge offer "Install app" in the address
 bar. The installed app works without network. Alternatively unzip the folder
 anywhere and open `index.html`.
 
+## Send as a single file
+
+```
+python3 bundle.py
+```
+
+writes `dist/atc-trainer.html` with everything inlined. Mail or share that one
+file (zip it if a mail filter blocks `.html`); it opens in any browser by
+double-click, no server, no install.
+
 ## Edit the data
 
 `data/airlines.js`, `data/types.js`, `data/aerodromes.js` are plain
