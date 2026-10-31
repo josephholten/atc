@@ -119,6 +119,7 @@ function stripCard() {
   return {
     prompt: cs + " " + t.icao + " " + ad.icao,
     answer: csSpoken + ", " + t.spoken + ", " + ad.name,
+    parts: [csSpoken, t.spoken, ad.name],   // rendered with extra spacing
     sub: t.mfr + " " + t.name + " · " + ad.name + ", " + ad.country,
     keys,
   };
@@ -164,7 +165,12 @@ function next() {
   card = GEN[mode]();
   revealed = false;
   el.prompt.textContent = card.prompt;
-  el.answer.textContent = card.answer;
+  el.answer.textContent = "";
+  if (card.parts) {
+    for (const p of card.parts) { const span = document.createElement("span"); span.textContent = p; el.answer.append(span); }
+  } else {
+    el.answer.textContent = card.answer;
+  }
   el.sub.textContent = card.sub;
   el.solution.hidden = true;
   el.judge.hidden = true;
