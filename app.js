@@ -20,8 +20,10 @@ const D = window.DATA;
 const AIRLINES = D.airlines.filter((a) => !a.prefix);   // usable for generated callsigns
 const AIRLINES_ALL = D.airlines;                         // includes the prefix-style entries (MI…, R…)
 const TYPES = D.types;
-const LIGHT_TYPES = TYPES.filter((t) => t.wtc === "L");   // for registration strips
-const HEAVY_TYPES = TYPES.filter((t) => t.wtc !== "L");   // for airline strips
+const GA_TYPES = TYPES.filter((t) => "CEFGHI".includes(t.reg));     // registration strips
+const AIRLINE_TYPES = TYPES.filter((t) => t.reg === "A" || t.reg === "B"); // civil operator strips
+const MIL_TYPES = TYPES.filter((t) => t.reg === null);                 // air force operator strips
+const MIL_OPERATORS = new Set(["BAF", "FAF", "GAF", "NAF", "RRR", "RCH"]);
 const AERODROMES = D.aerodromes;
 
 // ---------- persistent state ----------
@@ -66,9 +68,10 @@ function callsignCard() {
   const id = flightId();
   return { prompt: a.icao + id, answer: a.callsign + " " + spell(id), sub: a.icao + " = " + a.callsign, keys: ["airline:" + a.icao] };
 }
-// German registration, unabbreviated. Class letters weighted towards light aircraft.
-function registration() {
-  const cls = choice(["E", "E", "E", "E", "G", "G", "F", "I", "H", "K"]);
+// German registration, unabbreviated. The first letter follows the aircraft's
+// MTOW / engine class (see data/types.js); without a type, a plausible mix.
+function registration(cls) {
+  cls = cls || choice(["E", "E", "E", "E", "G", "F", "I", "H", "C", "K"]);
   let r = "D-" + cls;
   for (let i = 0; i < 3; i++) r += choice(LETTERS);
   return r;
@@ -89,8 +92,9 @@ function airlineCard() {
 }
 function typeCard() {
   const t = pick(TYPES, (x) => "type:" + x.icao);
-  if (encode) return { prompt: t.mfr + " " + t.name, answer: t.icao, sub: "", keys: ["type:" + t.icao] };
-  return { prompt: t.icao, answer: t.spoken, sub: t.mfr + " " + t.name, keys: ["type:" + t.icao] };
+  const cls = "WTC " + t.wtc + " · " + t.engines;
+  if (encode) return { prompt: t.mfr + " " + t.name, answer: t.icao, sub: cls, keys: ["type:" + t.icao] };
+  return { prompt: t.icao, answer: t.spoken, sub: t.mfr + " " + t.name + " · " + cls, keys: ["type:" + t.icao] };
 }
 function aerodromeCard() {
   const a = pick(activeAerodromes(), (x) => "ad:" + x.icao);
@@ -98,18 +102,20 @@ function aerodromeCard() {
   return { prompt: a.icao, answer: a.name, sub: a.country, keys: ["ad:" + a.icao] };
 }
 function stripCard() {
-  const ga = Math.random() < 0.3;   // general aviation: registration + light type
-  const t = pick(ga ? LIGHT_TYPES : HEAVY_TYPES, (x) => "type:" + x.icao);
+  const ga = Math.random() < 0.3;   // general aviation: registration + matching type
   const ad = pick(activeAerodromes(), (x) => "ad:" + x.icao);
-  let cs, csSpoken, keys = ["type:" + t.icao, "ad:" + ad.icao];
+  let t, cs, csSpoken, keys = ["ad:" + ad.icao];
   if (ga) {
-    cs = registration(); csSpoken = spell(cs);
+    t = pick(GA_TYPES, (x) => "type:" + x.icao);
+    cs = registration(t.reg); csSpoken = spell(cs);
   } else {
     const a = pick(AIRLINES, (x) => "airline:" + x.icao);
+    t = pick(MIL_OPERATORS.has(a.icao) ? MIL_TYPES : AIRLINE_TYPES, (x) => "type:" + x.icao);
     const id = flightId();
     cs = a.icao + id; csSpoken = a.callsign + " " + spell(id);
     keys.push("airline:" + a.icao);
   }
+  keys.push("type:" + t.icao);
   return {
     prompt: cs + " " + t.icao + " " + ad.icao,
     answer: csSpoken + ", " + t.spoken + ", " + ad.name,

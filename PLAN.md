@@ -19,7 +19,8 @@ Decisions (2026-10-31):
 
 - Airline callsign = 3-letter designator + one digit + up to three
   alphanumerics, letters only at the end, 7 characters at most.
-- No wake turbulence category, no "heavy", no operator names, no tactical
+- Wake category and engines appear only in the Types mode solution, never on
+  strips; no "heavy", no operator names, no tactical
   callsigns, no registration abbreviation.
 - One-line strip: callsign, type, destination.
 - The PDF stays out of git (`.gitignore`).

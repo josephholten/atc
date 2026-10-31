@@ -13,7 +13,7 @@ Open `index.html` in a browser, or visit the hosted page. Modes:
 - **Airlines**: `DLH4PK` → "Lufthansa four papa kilo"
 - **Types**: `B738` → "Boeing seven three eight"
 - **Aerodromes**: `EDDM` → "München"
-- **Registrations**: `D-EKAB` → "Delta Echo Kilo Alfa Bravo"
+- **Registrations**: `D-EKAB` → "Delta Echo Kilo Alfa Bravo" (on strips the first letter matches the type's weight class)
 - **Strip**: `DLH4PK A320 LEMD` → "Lufthansa four papa kilo, Airbus three two zero, Madrid"
 - **Mixed**: airlines, types and aerodromes shuffled
 
