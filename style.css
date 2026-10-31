@@ -33,7 +33,7 @@ body {
   display: flex;
   flex-direction: column;
 }
-header, main, footer { padding: 0 16px; max-width: 900px; width: 100%; margin: 0 auto; }
+header, main, footer { padding: 0 16px; max-width: 1400px; width: 100%; margin: 0 auto; }
 header { padding-top: 16px; }
 h1 { font-size: 1.25rem; margin: 0 0 12px; }
 #modes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -58,7 +58,7 @@ main { flex: 1; display: flex; flex-direction: column; gap: 16px; padding-top: 1
 }
 #prompt small { display: block; font: inherit; font-size: 1rem; font-weight: 400; letter-spacing: 0; color: var(--muted); margin-top: 8px; word-spacing: normal; }
 #answer { font-size: clamp(1.25rem, 4vw, 1.8rem); font-weight: 500; }
-#answer span { display: inline-block; margin: 0 1.2em 0.2em; }   /* strip mode: callsign · type · destination */
+#answer span { display: inline-block; margin: 0 1.2em 0.2em; white-space: nowrap; }   /* strip mode: callsign · type · destination */
 #sub { color: var(--muted); margin-top: 6px; }
 #actions { display: flex; justify-content: center; }
 #judge { display: flex; gap: 12px; }
