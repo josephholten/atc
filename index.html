@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATC R/T Trainer</title>
+<meta name="description" content="Practise speaking airline callsigns, aircraft types and aerodromes from ICAO codes.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1b2a41">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>ATC R/T Trainer</h1>
+  <nav id="modes" aria-label="Mode">
+    <button data-mode="airlines">Airlines</button>
+    <button data-mode="types">Types</button>
+    <button data-mode="aerodromes">Aerodromes</button>
+    <button data-mode="registrations">Registrations</button>
+    <button data-mode="strip">Strip</button>
+    <button data-mode="mixed">Mixed</button>
+  </nav>
+  <div id="options">
+    <label id="direction-opt"><input type="checkbox" id="encode"> Encode (name → code)</label>
+    <span id="groups-opt">
+      <label><input type="checkbox" data-group="europe" checked> Europe</label>
+      <label><input type="checkbox" data-group="world" checked> World</label>
+      <label><input type="checkbox" data-group="de-civil" checked> DE civil</label>
+      <label><input type="checkbox" data-group="de-vfr" checked> DE VFR</label>
+      <label><input type="checkbox" data-group="de-mil" checked> DE mil</label>
+    </span>
+  </div>
+</header>
+
+<main>
+  <section id="card">
+    <div id="prompt"></div>
+    <div id="solution" hidden>
+      <div id="answer"></div>
+      <div id="sub"></div>
+    </div>
+    <div id="actions">
+      <button id="reveal" class="primary">Reveal <kbd>Space</kbd></button>
+      <div id="judge" hidden>
+        <button id="wrong" class="bad">Wrong <kbd>1</kbd></button>
+        <button id="right" class="good">Right <kbd>2</kbd></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="session">
+    This session: <span id="s-right">0</span> right, <span id="s-wrong">0</span> wrong
+  </section>
+
+  <details id="stats">
+    <summary>Statistics (all time)</summary>
+    <p id="stats-total"></p>
+    <table id="stats-table"><thead><tr><th>Item</th><th>Right</th><th>Wrong</th></tr></thead><tbody></tbody></table>
+    <button id="reset">Reset all statistics</button>
+  </details>
+</main>
+
+<footer>
+  Keys: <kbd>Space</kbd> reveal / next · <kbd>1</kbd> or <kbd>←</kbd> wrong · <kbd>2</kbd> or <kbd>→</kbd> right.
+  Everything runs in your browser; statistics stay on this device.
+</footer>
+
+<script src="data/airlines.js"></script>
+<script src="data/types.js"></script>
+<script src="data/aerodromes.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
