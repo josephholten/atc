@@ -11,6 +11,15 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="gate" hidden>
+  <form id="gate-form">
+    <h1>ATC R/T Trainer</h1>
+    <p>This trainer is for course participants. Enter the password once; this device will remember it.</p>
+    <input id="gate-pw" type="password" autocomplete="current-password" placeholder="Password" autofocus>
+    <button type="submit" class="primary">Enter</button>
+    <p id="gate-err" hidden>Wrong password.</p>
+  </form>
+</div>
 <header>
   <h1>ATC R/T Trainer</h1>
   <nav id="modes" aria-label="Mode">
@@ -76,12 +85,14 @@
 <footer>
   Keys: <kbd>Space</kbd> reveal / next · <kbd>1</kbd> or <kbd>←</kbd> wrong · <kbd>2</kbd> or <kbd>→</kbd> right.
   Everything runs in your browser; statistics stay on this device.
+  <a id="bugreport" href="#" target="_blank" rel="noopener">Report a problem</a>
 </footer>
 
 <script src="data/airlines.js"></script>
 <script src="data/types.js"></script>
 <script src="data/aerodromes.js"></script>
 <script src="data/units.js"></script>
+<script src="config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

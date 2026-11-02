@@ -48,6 +48,26 @@ double-click, no server, no install.
 plain JavaScript arrays. Edit them with any text editor; no build step. After a
 change, bump `VERSION` in `sw.js` so installed copies refresh.
 
+## Password
+
+```
+python3 set-password.py
+```
+
+asks for a password and writes its hash to `config.js`; commit and push,
+and bump `VERSION` in `sw.js`. Visitors type the password once per device.
+`--clear` removes it. This keeps casual visitors out; it is not encryption,
+and the data files are readable in the public repository anyway.
+
+## Problem reports
+
+"Report a problem" in the footer opens a prefilled report (mode, card on
+screen, browser). Set `BUGREPORT_MAIL` in `config.js` to receive it by mail;
+without an address it opens a new GitHub issue, which also notifies the
+repository owner but needs a GitHub account.
+
 ## Host
 
-Push to GitHub and enable Pages for the repository root. No other setup.
+Pages is enabled for the `master` branch, repository root:
+<https://josephholten.github.io/atc/>. Every push to `master` deploys within
+a minute or two. No other setup.
