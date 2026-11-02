@@ -291,31 +291,10 @@ function bugreport() {
 }
 $("bugreport").addEventListener("click", (e) => { e.currentTarget.href = bugreport(); });
 
-// ---------- access gate ----------
-// Asked once per device; the hash of the accepted password is kept in localStorage.
-async function pwHash(pw) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("atc-trainer:" + pw));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-function gate() {
-  const want = window.PASSWORD_HASH;
-  if (!want || LS.get("auth", null) === want) return;
-  const g = $("gate"), pw = $("gate-pw"), err = $("gate-err");
-  g.hidden = false;
-  pw.focus();
-  $("gate-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!crypto.subtle) { err.textContent = "This browser cannot check the password here (needs https or a file)."; err.hidden = false; return; }
-    if ((await pwHash(pw.value)) === want) { LS.set("auth", want); g.hidden = true; }
-    else { err.hidden = false; pw.select(); }
-  });
-}
-
 renderOptions();
 renderStats();
 renderRules();
 next();
-gate();
 
 // Offline support: only possible over http(s), silently skipped when opened as a file.
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
