@@ -25,6 +25,7 @@ const AIRLINE_TYPES = TYPES.filter((t) => t.reg === "A" || t.reg === "B"); // ci
 const MIL_TYPES = TYPES.filter((t) => t.reg === null);                 // air force operator strips
 const MIL_OPERATORS = new Set(["BAF", "FAF", "GAF", "NAF", "RRR", "RCH"]);
 const AERODROMES = D.aerodromes;
+const UNITS = D.units;
 
 // ---------- persistent state ----------
 const LS = {
@@ -35,6 +36,7 @@ let scores = LS.get("scores", {});          // key -> {r, w}
 let mode = LS.get("mode", "airlines");
 let encode = LS.get("encode", false);
 let groups = LS.get("groups", { europe: true, world: true, "de-civil": true, "de-vfr": true, "de-mil": true });
+let ucats = LS.get("ucats", { distance: true, speed: true, volume: true, mass: true });
 
 // ---------- weighted selection ----------
 // Unseen items and items with many wrong answers come up more often.
@@ -124,10 +126,51 @@ function stripCard() {
     keys,
   };
 }
+// ---------- unit conversions ----------
+// Mental arithmetic: every intermediate result is rounded the way one would
+// round it in one's head, and the rounded value is carried forward.
+const rnum = (x) => { const d = Math.abs(x) >= 20 ? 0 : Math.abs(x) >= 2 ? 1 : 2; return +x.toFixed(d); };
+const fmt = (x) => String(rnum(x));
+function applyRule(x, steps) {
+  let v = x; const parts = [];
+  for (const [op, n] of steps) {
+    if (op === "*") { v = rnum(v * n); parts.push(`${fmt(x)} × ${n} = ${fmt(v)}`); }
+    else if (op === "/") { v = rnum(v / n); parts.push(`${fmt(x)} / ${n} = ${fmt(v)}`); }
+    else { const d = rnum(v * n / 100); v = rnum(v + d); parts.push(`${d < 0 ? "−" : "+"} ${fmt(Math.abs(d))} = ${fmt(v)}`); }
+    x = v;
+  }
+  return { result: v, text: parts.join("; ") };
+}
+function activeUnits() {
+  const f = UNITS.filter((u) => ucats[u.cat]);
+  return f.length ? f : UNITS;
+}
+function unitCard() {
+  const u = pick(activeUnits(), (x) => "unit:" + x.from + ">" + x.to);
+  const x = choice(u.values);
+  const { result, text } = applyRule(x, u.steps);
+  const exact = u.factor >= 1 ? rnum(x * u.factor) : +(x * u.factor).toPrecision(3);
+  return {
+    prompt: `${fmt(x)} ${u.from} → ${u.to}`,
+    answer: `≈ ${fmt(result)} ${u.to}`,
+    subLines: [
+      { text: u.rule ? "Rule of thumb: " + u.rule : `No rule of thumb; simplification ${u.simple}`, cls: "rule" },
+      { text },
+      { text: `Exact: ${exact} ${u.to} (${u.exact})` },
+    ],
+    sub: "",
+    keys: ["unit:" + u.from + ">" + u.to],
+  };
+}
+function renderRules() {
+  document.querySelector("#rules-table tbody").innerHTML = UNITS.map((u) =>
+    `<tr><td>${u.from}</td><td>${u.to}</td><td>${u.exact}</td><td>${u.simple}</td><td>${u.rule || "—"}</td></tr>`).join("");
+}
+
 function mixedCard() {
   return choice([airlineCard, typeCard, aerodromeCard])();
 }
-const GEN = { airlines: airlineCard, types: typeCard, aerodromes: aerodromeCard, registrations: registrationCard, strip: stripCard, mixed: mixedCard };
+const GEN = { airlines: airlineCard, types: typeCard, aerodromes: aerodromeCard, registrations: registrationCard, strip: stripCard, units: unitCard, mixed: mixedCard };
 
 // ---------- UI ----------
 const $ = (id) => document.getElementById(id);
@@ -135,13 +178,14 @@ const el = {
   prompt: $("prompt"), solution: $("solution"), answer: $("answer"), sub: $("sub"),
   reveal: $("reveal"), judge: $("judge"), right: $("right"), wrong: $("wrong"),
   sRight: $("s-right"), sWrong: $("s-wrong"), encode: $("encode"),
-  dirOpt: $("direction-opt"), groupsOpt: $("groups-opt"),
+  dirOpt: $("direction-opt"), groupsOpt: $("groups-opt"), unitsOpt: $("units-opt"), rules: $("rules"),
   statsTotal: $("stats-total"), statsBody: document.querySelector("#stats-table tbody"), reset: $("reset"),
 };
 let card = null, revealed = false, session = { r: 0, w: 0 };
 
 function label(key) {
   const [cat, code] = key.split(":");
+  if (cat === "unit") return code.replace(">", " → ");
   const list = { airline: AIRLINES_ALL, type: TYPES, ad: AERODROMES }[cat];
   const it = list.find((x) => x.icao === code);
   return it ? code + " – " + (it.callsign || it.spoken || it.name) : key;
@@ -158,7 +202,11 @@ function renderOptions() {
   document.querySelectorAll("#modes button").forEach((b) => b.classList.toggle("active", b.dataset.mode === mode));
   el.dirOpt.hidden = !["airlines", "types", "aerodromes", "mixed"].includes(mode);
   el.groupsOpt.hidden = !["aerodromes", "strip", "mixed"].includes(mode);
+  el.unitsOpt.hidden = mode !== "units";
+  el.rules.hidden = mode !== "units";
+  el.prompt.classList.toggle("units", mode === "units");
   el.encode.checked = encode;
+  document.querySelectorAll("#units-opt input").forEach((c) => { c.checked = !!ucats[c.dataset.cat]; });
   document.querySelectorAll("#groups-opt input").forEach((c) => { c.checked = !!groups[c.dataset.group]; });
 }
 function next() {
@@ -172,6 +220,9 @@ function next() {
     el.answer.textContent = card.answer;
   }
   el.sub.textContent = card.sub;
+  if (card.subLines) {
+    for (const l of card.subLines) { const d = document.createElement("div"); d.textContent = l.text; if (l.cls) d.className = l.cls; el.sub.append(d); }
+  }
   el.solution.hidden = true;
   el.judge.hidden = true;
   el.reveal.hidden = false;
@@ -205,6 +256,9 @@ el.encode.addEventListener("change", () => { encode = el.encode.checked; LS.set(
 document.querySelectorAll("#groups-opt input").forEach((c) => c.addEventListener("change", () => {
   groups[c.dataset.group] = c.checked; LS.set("groups", groups); next();
 }));
+document.querySelectorAll("#units-opt input").forEach((c) => c.addEventListener("change", () => {
+  ucats[c.dataset.cat] = c.checked; LS.set("ucats", ucats); next();
+}));
 el.reveal.addEventListener("click", reveal);
 el.right.addEventListener("click", () => judge(true));
 el.wrong.addEventListener("click", () => judge(false));
@@ -220,6 +274,7 @@ document.addEventListener("keydown", (e) => {
 
 renderOptions();
 renderStats();
+renderRules();
 next();
 
 // Offline support: only possible over http(s), silently skipped when opened as a file.

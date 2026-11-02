@@ -1,9 +1,9 @@
 // Cache-first service worker: after the first visit the trainer works offline.
 // Bump VERSION whenever any file changes, so clients pick up the new files.
-const VERSION = "v1";
+const VERSION = "v2";
 const FILES = [
   "./", "index.html", "style.css", "app.js", "manifest.json", "icon.svg", "icon-192.png", "icon-512.png",
-  "data/airlines.js", "data/types.js", "data/aerodromes.js",
+  "data/airlines.js", "data/types.js", "data/aerodromes.js", "data/units.js",
 ];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

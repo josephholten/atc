@@ -19,6 +19,7 @@
     <button data-mode="aerodromes">Aerodromes</button>
     <button data-mode="registrations">Registrations</button>
     <button data-mode="strip">Strip</button>
+    <button data-mode="units">Units</button>
     <button data-mode="mixed">Mixed</button>
   </nav>
   <div id="options">
@@ -29,6 +30,12 @@
       <label><input type="checkbox" data-group="de-civil" checked> DE civil</label>
       <label><input type="checkbox" data-group="de-vfr" checked> DE VFR</label>
       <label><input type="checkbox" data-group="de-mil" checked> DE mil</label>
+    </span>
+    <span id="units-opt" hidden>
+      <label><input type="checkbox" data-cat="distance" checked> Distance</label>
+      <label><input type="checkbox" data-cat="speed" checked> Speed</label>
+      <label><input type="checkbox" data-cat="volume" checked> Volume</label>
+      <label><input type="checkbox" data-cat="mass" checked> Mass</label>
     </span>
   </div>
 </header>
@@ -53,6 +60,11 @@
     This session: <span id="s-right">0</span> right, <span id="s-wrong">0</span> wrong
   </section>
 
+  <details id="rules" hidden>
+    <summary>Rules of thumb</summary>
+    <table id="rules-table"><thead><tr><th>From</th><th>To</th><th>Factor</th><th>Simplification</th><th>Rule of thumb</th></tr></thead><tbody></tbody></table>
+  </details>
+
   <details id="stats">
     <summary>Statistics (all time)</summary>
     <p id="stats-total"></p>
@@ -69,6 +81,7 @@
 <script src="data/airlines.js"></script>
 <script src="data/types.js"></script>
 <script src="data/aerodromes.js"></script>
+<script src="data/units.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

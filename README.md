@@ -15,6 +15,10 @@ Open `index.html` in a browser, or visit the hosted page. Modes:
 - **Aerodromes**: `EDDM` → "München"
 - **Registrations**: `D-EKAB` → "Delta Echo Kilo Alfa Bravo" (on strips the first letter matches the type's weight class)
 - **Strip**: `DLH4PK A320 LEMD` → "Lufthansa four papa kilo, Airbus three two zero, Madrid"
+- **Units**: `300 m → ft` → "≈ 990 ft" with the rule of thumb (m × 3 + 10%), the
+  worked steps (300 × 3 = 900; + 90 = 990) and the exact value. Distance, speed,
+  volume and mass can be switched on and off; "Rules of thumb" below the card
+  lists the whole table.
 - **Mixed**: airlines, types and aerodromes shuffled
 
 "Encode" reverses the direction (name → code). Aerodrome groups can be
@@ -40,8 +44,8 @@ double-click, no server, no install.
 
 ## Edit the data
 
-`data/airlines.js`, `data/types.js`, `data/aerodromes.js` are plain
-JavaScript arrays. Edit them with any text editor; no build step. After a
+`data/airlines.js`, `data/types.js`, `data/aerodromes.js`, `data/units.js` are
+plain JavaScript arrays. Edit them with any text editor; no build step. After a
 change, bump `VERSION` in `sw.js` so installed copies refresh.
 
 ## Host
